@@ -28,6 +28,12 @@ const googleAppScriptApi =
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
+if (!urlParams.get('sheet_name')) {
+	alert(
+		'Please pass the google sheet name as query string. Example: ?sheet_name=locationproperties'
+	);
+}
+
 function getDataFromGSheet(sheetName) {
 	const xhttp = new XMLHttpRequest();
 
@@ -56,7 +62,9 @@ function initMap() {
 		streetViewControl: false
 	});
 
-	getDataFromGSheet(urlParams.get('sheet_name'));
+	if (urlParams.get('sheet_name')) {
+		getDataFromGSheet(urlParams.get('sheet_name'));
+	}
 }
 
 function setMarker(storeJson) {
