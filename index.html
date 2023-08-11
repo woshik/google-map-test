@@ -1,0 +1,138 @@
+<html>
+	<head>
+		<title>Store Locator</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+		/>
+
+		<!-- BootStrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		/>
+
+		<style>
+			#map {
+				height: 100%;
+			}
+
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+
+			#wrapper {
+				position: relative;
+			}
+
+			.sidebar {
+				position: absolute;
+				top: 20px;
+				right: 10px;
+				z-index: 10;
+				width: 200px;
+				height: 200px;
+
+				background-color: rgba(255, 255, 255, 0.9);
+
+				display: block;
+			}
+
+			.popupimg {
+				width: 200;
+				height: 150;
+			}
+
+			.right {
+				padding: 10px;
+			}
+
+			@media only screen and (max-width: 480px) {
+				.sidebar {
+					position: absolute;
+					font-size: 10;
+					width: 100px;
+					height: 135px;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- The div to hold the map -->
+		<div id="wrapper">
+			<div id="map"></div>
+
+			<div class="sidebar" id="sidebar">
+				<div class="right">
+					<img
+						width="20"
+						height="20"
+						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/38671277-8a7d-4f73-ac4c-c957915e15cb/Green+Marker.png"
+					/>
+					<input
+						type="checkbox"
+						id="Aesop"
+						value="Aesop"
+						onclick="showhideMarkers(this)"
+						checked
+					/><label for="Aesop"> Aesop </label><br />
+					<img
+						width="20"
+						height="20"
+						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/7cb4b5d7-aeec-4bff-9f16-4b83086e79dd/Red+Marker+.png"
+					/>
+					<input
+						type="checkbox"
+						id="LeLabo"
+						value="LeLabo"
+						onclick="showhideMarkers(this)"
+						checked
+					/><label for="LeLabo"> Le Labo</label><br />
+					<img
+						width="20"
+						height="20"
+						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/bf97084d-56aa-49f8-9161-39ac39cccf82/Purple+Marker.png"
+					/>
+					<input
+						type="checkbox"
+						id="Diptique"
+						value="Diptique"
+						onclick="showhideMarkers(this)"
+						checked
+					/><label for="Diptique"> Diptique</label><br />
+					<img
+						width="20"
+						height="20"
+						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/a4cf64ce-986a-477a-9cd4-47dfff0e85a4/Orange+Marker.png"
+					/>
+					<input
+						type="checkbox"
+						id="WarbyParker"
+						value="WarbyParker"
+						onclick="showhideMarkers(this)"
+						checked
+					/><label for="WarbyParker"> Warby Parker</label><br />
+					<img
+						width="20"
+						height="20"
+						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/fd04f87d-68fe-483c-a2ad-4095788b9227/Blue+marker.png"
+					/>
+					<input
+						type="checkbox"
+						id="Opportunities"
+						value="Opportunities"
+						onclick="showhideMarkers(this)"
+						checked
+					/><label for="Opportunities"> Opportunities</label><br />
+				</div>
+			</div>
+		</div>
+		<script src="./script.js"></script>
+
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBE2fNnqEJ5ni57VyVjs8P_w-eG7Hlt6iw&callback=initMap"></script>
+	</body>
+</html>
