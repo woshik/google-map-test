@@ -1,31 +1,32 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Store Locator</title>
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-		/>
-
-		<!-- BootStrap CSS -->
-		<link
-			rel="stylesheet"
-			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-		/>
-
 		<style>
-			#map {
-				height: 100%;
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
 			}
 
 			html,
 			body {
-				height: 100%;
-				margin: 0;
-				padding: 0;
+				height: 100vh;
+				width: 100vw;
 			}
 
-			#wrapper {
+			.wrapper {
+				height: 100%;
+				width: 100%;
 				position: relative;
+			}
+
+			#map {
+				height: 100%;
+				width: 100%;
 			}
 
 			.sidebar {
@@ -34,104 +35,207 @@
 				right: 10px;
 				z-index: 10;
 				width: 200px;
-				height: 200px;
-
 				background-color: rgba(255, 255, 255, 0.9);
-
-				display: block;
+				display: none;
+				padding: 20px 10px;
 			}
 
-			.popupimg {
-				width: 200;
-				height: 150;
+			.store-annotation {
+				margin-bottom: 12px;
+				display: flex;
+				align-items: center;
 			}
 
-			.right {
-				padding: 10px;
+			.store-annotation input {
+				margin: 0px 5px;
+				height: 18px;
+				width: 18px;
 			}
 
-			@media only screen and (max-width: 480px) {
-				.sidebar {
-					position: absolute;
-					font-size: 10;
-					width: 100px;
-					height: 135px;
-				}
+			.store-annotation label {
+				font-size: 20px;
+    			font-weight: bold;
+				user-select: none;
 			}
 		</style>
 	</head>
-
 	<body>
-		<!-- The div to hold the map -->
-		<div id="wrapper">
+		<div class="wrapper">
 			<div id="map"></div>
-
-			<div class="sidebar" id="sidebar">
-				<div class="right">
-					<img
-						width="20"
-						height="20"
-						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/38671277-8a7d-4f73-ac4c-c957915e15cb/Green+Marker.png"
-					/>
-					<input
-						type="checkbox"
-						id="Aesop"
-						value="Aesop"
-						onclick="showhideMarkers(this)"
-						checked
-					/><label for="Aesop"> Aesop </label><br />
-					<img
-						width="20"
-						height="20"
-						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/7cb4b5d7-aeec-4bff-9f16-4b83086e79dd/Red+Marker+.png"
-					/>
-					<input
-						type="checkbox"
-						id="LeLabo"
-						value="LeLabo"
-						onclick="showhideMarkers(this)"
-						checked
-					/><label for="LeLabo"> Le Labo</label><br />
-					<img
-						width="20"
-						height="20"
-						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/bf97084d-56aa-49f8-9161-39ac39cccf82/Purple+Marker.png"
-					/>
-					<input
-						type="checkbox"
-						id="Diptique"
-						value="Diptique"
-						onclick="showhideMarkers(this)"
-						checked
-					/><label for="Diptique"> Diptique</label><br />
-					<img
-						width="20"
-						height="20"
-						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/a4cf64ce-986a-477a-9cd4-47dfff0e85a4/Orange+Marker.png"
-					/>
-					<input
-						type="checkbox"
-						id="WarbyParker"
-						value="WarbyParker"
-						onclick="showhideMarkers(this)"
-						checked
-					/><label for="WarbyParker"> Warby Parker</label><br />
-					<img
-						width="20"
-						height="20"
-						src="https://images.squarespace-cdn.com/content/64c413f541fc0e544918798e/fd04f87d-68fe-483c-a2ad-4095788b9227/Blue+marker.png"
-					/>
-					<input
-						type="checkbox"
-						id="Opportunities"
-						value="Opportunities"
-						onclick="showhideMarkers(this)"
-						checked
-					/><label for="Opportunities"> Opportunities</label><br />
-				</div>
-			</div>
+			<div class="sidebar" id="sidebar"></div>
 		</div>
-		<script src="./script.js"></script>
+		
+		<script>
+			let map;
+			const brands = {}
+			const colors = [
+				"#C0392B",
+				"#8E44AD",
+				"#2980B9",
+				"#27AE60",
+				"#fff200",
+				"#1ABC9C",
+				"#D35400",
+				"#574b90",
+				"#ffb142",
+				"#e84393"
+			]
+
+			const mapMarker = `M81.2,0H18.7c-3.5,0-6.2,2.8-6.2,6.2v62.6c0,3.5,2.8,6.2,6.2,6.2h20l9.5,22.8c1,2.9,2.5,2.9,3.5,0l9.4-22.7h20  c3.5,0,6.3-2.8,6.3-6.2V6.2C87.5,2.8,84.7,0,81.2,0z`;
+
+			function getDataFromGSheet(sheetName) {
+				const googleAppScriptApi =
+					'https://script.google.com/macros/s/AKfycby_JgMjqjIFUXShC3FSjVoZUMBj_yfbdxbstL8KSnycOr-lnQtgsEezaJxIxuh16GAELg/exec';
+
+				const xhttp = new XMLHttpRequest();
+
+				xhttp.onreadystatechange = function () {
+					if (this.readyState == 4 && this.status == 200) {
+						setMarker(JSON.parse(this.responseText));
+					}
+				};
+
+				// Send a request
+				xhttp.open('GET', `${googleAppScriptApi}?sheet_name=${sheetName}`);
+				xhttp.send();
+			}
+
+			function initMap() {
+				const queryString = window.location.search;
+				const urlParams = new URLSearchParams(queryString);
+
+				if (!urlParams.get('sheet_name')) {
+					alert(
+						'Please pass the google sheet name as query string. Example: ?sheet_name=locationproperties'
+					);
+
+					return
+				}
+
+				map = new google.maps.Map(document.getElementById('map'), {
+					zoom: 12,
+					center: {
+						lat: 40.754788433009736,
+						lng: -73.98678043934693
+					},
+					fullscreenControl: false,
+					mapTypeControl: false,
+					clickableIcons: false,
+
+					streetViewControl: false
+				});
+
+				if (urlParams.get('sheet_name')) {
+					getDataFromGSheet(urlParams.get('sheet_name'));
+				}
+			}
+
+			function setMarker(storeJson) {
+				let getColor = 0
+				storeJson.forEach((store) => {
+					const [lat, lng] = [store['Latitude'], store['Longitude']];
+
+					const brandNameLowerCase = store?.Brand?.toLowerCase()
+
+					if(!brands[brandNameLowerCase]) {
+						brands[brandNameLowerCase] = {
+							brandName: store?.Brand,
+							color: colors[getColor],
+							markers: []
+						}
+
+						getColor++
+					}
+
+					const svgMarker = {
+						path: mapMarker,
+						fillColor: brands[brandNameLowerCase].color,
+						fillOpacity: 1,
+						strokeWeight: 0,
+						rotation: 0,
+						scale: 0.3,
+						anchor: new google.maps.Point(0, 20),
+					};
+
+					const marker = new google.maps.Marker({
+						icon: svgMarker,
+						position: {
+							lat,
+							lng
+						},
+						map: map
+					});
+
+					if (store['Brand'] == 'Properties') {
+						const infowindow = new google.maps.InfoWindow();
+						marker.addListener('click', () => {
+							infowindow.setContent(`
+								<img src='${store['Image']}' alt='${store['Full Address']}' width='400' height='300'>
+								<br/><br/>
+								<b>${store['Full Address']}, USA</b>
+								<br/><br/>
+								<b>GF Size: </b> ${store['GF Size']}
+								<br/><br/>
+								<b>LL Size: </b> ${store['LL Size']}
+								<br/><br/>
+								<b>Total Size: </b> ${store['Total Size']}
+								<br/><br/>
+								<b>Asking Rent Per Month: </b> ${store['Asking Rent Per Month']}
+								<br/><br/>
+								<b>Asking Rent Per Year: </b> ${store['Asking Rent Per Year']}
+								<br/><br/>
+								<b>Notes: </b> ${store['Notes']}
+							`);
+							
+							infowindow.setPosition({ lat, lng });
+					
+							infowindow.open(map, marker);
+							map.panTo(marker.getPosition());
+						});
+					}
+
+					brands[brandNameLowerCase].markers.push(marker)
+				});
+
+				let innerHTML = ''
+
+				for (const brand in brands) {
+					if (Object.hasOwnProperty.call(brands, brand)) {
+						const store = brands[brand];
+
+						innerHTML += `
+							<div class="store-annotation">
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+									viewBox="0 0 100 100" style="width:24px; fill: ${store.color}">
+									<path d="M81.2,0H18.7c-3.5,0-6.2,2.8-6.2,6.2v62.6c0,3.5,2.8,6.2,6.2,6.2h20l9.5,22.8c1,2.9,2.5,2.9,3.5,0l9.4-22.7h20
+									c3.5,0,6.3-2.8,6.3-6.2V6.2C87.5,2.8,84.7,0,81.2,0z"/>
+								</svg>
+								<input
+									type="checkbox"
+									value="${brand}"
+									id="${store.brandName}"
+									onclick="showHideMarkers(this)"
+									checked
+								/><label for="${store.brandName}">${store.brandName}</label>
+							</div>
+						`
+						
+					}
+				}
+
+				const sideBar = document.getElementById("sidebar")
+				sideBar.innerHTML = innerHTML
+				sideBar.style.display = "block"
+			}
+
+			function showHideMarkers(e) {
+				const selectedBrand = e.value;
+
+				brands[selectedBrand].markers.forEach(marker => {
+					marker.setVisible(!marker.getVisible())
+				})
+			}
+		</script>
 
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBE2fNnqEJ5ni57VyVjs8P_w-eG7Hlt6iw&callback=initMap"></script>
 	</body>
